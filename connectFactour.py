@@ -1,6 +1,6 @@
 #logic for connect-factour game
 import random
-
+#AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!!!!!!!!!!!!!!!!!!!!!
 #grid = [[],[],[],[],[],[]]
 
 productSet = set()
