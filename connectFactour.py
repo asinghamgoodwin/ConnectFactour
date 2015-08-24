@@ -54,6 +54,7 @@ class game():
         self.factor1 = random.randint(1,9)
         #self.factors = [self.factor0, self.factor1]
         self.turn = self.gamer1
+        self.isOver = False
 
     def executeMove(self, gamer, whichFactor, newFactor): #whichFactor is 0 or 1
         #changing the coins on the factor line
@@ -96,11 +97,11 @@ def playTextGame():
     myGame = game(player1, player2)
     myGame.textBoard()
     while myGame.isOver == False:
-       currentPlayer = myGame.turn 
-    whichFactor = int(raw_input("Player1, which factor do you want to change (0, 1)? "))
-    newFactor = int(raw_input("What do you want to change it to?"))
-    myGame.executeMove(player1,whichFactor, newFactor)
-    myGame.textBoard()
+        currentPlayer = myGame.turn
+        whichFactor = int(raw_input("Player "+currentPlayer.letter+", which factor do you want to change (0, 1)? "))
+        newFactor = int(raw_input("What do you want to change it to?"))
+        myGame.executeMove(currentPlayer, whichFactor, newFactor)
+        myGame.textBoard()
 
 
 
