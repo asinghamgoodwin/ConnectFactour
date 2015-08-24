@@ -2,6 +2,7 @@
 import random
 #AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!!!!!!!!!!!!!!!!!!!!!
 #grid = [[],[],[],[],[],[]]
+#kittens
 
 productSet = set()
 for i in xrange(1,10):
