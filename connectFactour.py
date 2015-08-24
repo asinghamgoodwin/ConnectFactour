@@ -26,7 +26,7 @@ class gridSquare():
 
     def text(self): #what should show up in the square
         if self.isTaken:
-            return self.owner
+            return self.owner.letter
         return str(self.number)
 
 #for y in xrange(6):
@@ -51,12 +51,24 @@ class game():
                 myProductList.pop()
         self.factor0 = random.randint(1,9)
         self.factor1 = random.randint(1,9)
-        self.factors = [self.factor0, self.factor1]
+        #self.factors = [self.factor0, self.factor1]
+        self.turn = self.gamer1
 
     def executeMove(self, gamer, whichFactor, newFactor): #whichFactor is 0 or 1
         #changing the coins on the factor line
-        self.factors[whichFactor] = newFactor
+        if whichFactor == 0:
+            self.factor0 = newFactor
+        elif whichFactor == 1:
+            self.factor1 = newFactor
+
+        #figure out which number was taken
         number = self.factor0*self.factor1
+
+        #switch whose turn it is
+        if gamer == self.gamer1:
+            self.turn = self.gamer2
+        else:
+            self.turn = self.gamer1
 
         #changing the square in the grid
         for y in range(6):
@@ -82,6 +94,8 @@ def playTextGame():
     player2 = gamer('O')
     myGame = game(player1, player2)
     myGame.textBoard()
+    while myGame.isOver == False:
+       currentPlayer = myGame.turn 
     whichFactor = int(raw_input("Player1, which factor do you want to change (0, 1)? "))
     newFactor = int(raw_input("What do you want to change it to?"))
     myGame.executeMove(player1,whichFactor, newFactor)
@@ -89,7 +103,7 @@ def playTextGame():
 
 
 
-
+playTextGame()
 
 
 
