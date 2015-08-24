@@ -1,17 +1,12 @@
 #logic for connect-factour game
 import random
-#AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!!!!!!!!!!!!!!!!!!!!!
-#grid = [[],[],[],[],[],[]]
-#kittens
 
 productSet = set()
 for i in xrange(1,10):
     for j in xrange(1,10):
         productSet.add(i*j)
 
-# print len(productSet)
 productList = sorted(productSet)
-#print productList
 
 class gridSquare():
     def __init__(self, y, x, number):
@@ -30,14 +25,6 @@ class gridSquare():
             return self.owner.letter
         return str(self.number)
 
-#for y in xrange(6):
-#    for x in xrange(5,-1,-1):
-#        grid[y].insert(0, gridSquare(y, x, productList[-1]))
-#        productList.pop()
-
-#for row in grid:
-#    print [gs.number for gs in row]
-
 
 class game():
     def __init__(self, gamer1, gamer2, gameID=None):
@@ -52,9 +39,23 @@ class game():
                 myProductList.pop()
         self.factor0 = random.randint(1,9)
         self.factor1 = random.randint(1,9)
-        #self.factors = [self.factor0, self.factor1]
         self.turn = self.gamer1
         self.isOver = False
+    def isLegal(self, whichFactor, newFactor):
+        if whichFactor == 0:
+            oldFactor = self.factor1
+        elif whichFactor == 1:
+            oldFactor=self.factor0
+
+        #figure out which number was taken
+        number = oldFactor*newFactor
+
+        for y in range(6):
+            for x in range(6):
+                if self.grid[y][x].number == number:
+                    if self.grid[y][x].isTaken:
+                        return False
+                    return True
 
     def executeMove(self, gamer, whichFactor, newFactor): #whichFactor is 0 or 1
         #changing the coins on the factor line
@@ -100,9 +101,11 @@ def playTextGame():
         currentPlayer = myGame.turn
         whichFactor = int(raw_input("Player "+currentPlayer.letter+", which factor do you want to change (0, 1)? "))
         newFactor = int(raw_input("What do you want to change it to?"))
-        myGame.executeMove(currentPlayer, whichFactor, newFactor)
-        myGame.textBoard()
-
+        if myGame.isLegal(whichFactor, newFactor):
+            myGame.executeMove(currentPlayer, whichFactor, newFactor)
+            myGame.textBoard()
+        else:
+            print ("Sorry!That move won't work!")
 
 
 playTextGame()
