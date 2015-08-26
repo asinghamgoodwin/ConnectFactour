@@ -72,11 +72,29 @@ class game():
 
 
         #diagonal
-       # for y in xrange(3):
-        #    try:
-              
-         #   except:    
-          #      continue 
+        for y in xrange(3):
+            for x in xrange(3): 
+                if self.grid[y][x].isTaken:
+                    owner = self.grid[y][x].owner
+                else:
+                    continue
+                if owner == self.grid[y+1][x+1].owner and owner == self.grid[y+2][x+2].owner  and owner == self.grid[y+3][x+3].owner : 
+                    self.isOver = True
+                    self.winner = owner
+                    return True
+
+        for y in xrange(3,6):
+            for x in xrange(3): 
+                if self.grid[y][x].isTaken:
+                    owner = self.grid[y][x].owner
+                else:
+                    continue
+                if owner == self.grid[y-1][x+1].owner  and owner == self.grid[y-2][x+2].owner  and owner == self.grid[y-3][x+3].owner : 
+                    self.isOver = True
+                    self.winner = owner
+                    return True
+
+
     def isLegal(self, whichFactor, newFactor):
         if whichFactor == 0:
             oldFactor = self.factor1
@@ -134,8 +152,8 @@ def playTextGame():
     player1 = gamer('X')
     player2 = gamer('O')
     myGame = game(player1, player2)
-    for y in xrange(3):
-        myGame.grid[y][2].take(player2)
+#    for i in xrange(3):
+#        myGame.grid[3-i][i+1].take(player2)
     myGame.textBoard()
     while myGame.isOver == False:
         currentPlayer = myGame.turn
