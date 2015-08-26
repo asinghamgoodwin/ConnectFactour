@@ -41,6 +41,42 @@ class game():
         self.factor1 = random.randint(1,9)
         self.turn = self.gamer1
         self.isOver = False
+        self.winner = None
+
+    def isGameOver(self):
+        #horizontal
+        for row in self.grid:
+            ownerList = [gs.owner for gs in row]
+            for x in xrange(3):
+                if row[x].isTaken:
+                    owner = ownerList[x]
+                else:
+                    continue
+                if ownerList[x+1] == owner and ownerList[x+2] == owner and ownerList[x+3] == owner:
+                    self.isOver = True
+                    self.winner = owner
+                    return True
+
+        #vertical
+        for x in range(6): #go through every column
+            ownerList = [self.grid[y][x].owner for y in xrange(6)]
+            for y in range(3): #we only need to look starting at the top three rows
+                if self.grid[y][x].isTaken:
+                    owner = ownerList[y]
+                else:
+                    continue
+                if ownerList[y+1] == owner and ownerList[y+2] == owner and ownerList[y+3] == owner:
+                    self.isOver = True
+                    self.winner = owner
+                    return True
+
+
+        #diagonal
+       # for y in xrange(3):
+        #    try:
+              
+         #   except:    
+          #      continue 
     def isLegal(self, whichFactor, newFactor):
         if whichFactor == 0:
             oldFactor = self.factor1
@@ -78,6 +114,8 @@ class game():
             for x in range(6):
                 if self.grid[y][x].number == number:
                     self.grid[y][x].take(gamer)
+        self.isGameOver()
+
 
     def textBoard(self):
         for row in self.grid:
@@ -96,6 +134,8 @@ def playTextGame():
     player1 = gamer('X')
     player2 = gamer('O')
     myGame = game(player1, player2)
+    for y in xrange(3):
+        myGame.grid[y][2].take(player2)
     myGame.textBoard()
     while myGame.isOver == False:
         currentPlayer = myGame.turn
@@ -104,6 +144,9 @@ def playTextGame():
         if myGame.isLegal(whichFactor, newFactor):
             myGame.executeMove(currentPlayer, whichFactor, newFactor)
             myGame.textBoard()
+            if myGame.isOver:
+                print "Player "+myGame.winner.letter+" wins!"
+                return None
         else:
             print ("Sorry!That move won't work!")
 
