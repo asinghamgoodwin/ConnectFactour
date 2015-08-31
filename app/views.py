@@ -1,6 +1,6 @@
 from flask import render_template
 from app import app
-import connectFactour
+from connectFactour import *
 
 @app.route('/')
 @app.route('/index')

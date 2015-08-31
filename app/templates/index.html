@@ -7,18 +7,13 @@
   <tr>
       {% for x in range(6) %}
       <td>{{ game.grid[y][x].number }} </td>
+      {% endfor %}
   </tr>
+
+  {% endfor %}
   </table>
 
-<!--
 
-  {% if player.letter== 'X'%}
-      <font color ="red">Hello, {{ player.letter}}!</font>
-  {% else %}
-      <font color ="blue">Hello, {{ player.letter}}!</font>
-  {% endif %}
-
--->
 
   </body>
 </html>
