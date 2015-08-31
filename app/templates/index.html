@@ -2,10 +2,23 @@
     <title>{{ title }} - Most Awesome Game Ever</title>
   </head>
   <body>
+  <table>
+  {% for y in range(6) %}
+  <tr>
+      {% for x in range(6) %}
+      <td>{{ game.grid[y][x].number }} </td>
+  </tr>
+  </table>
+
+<!--
+
   {% if player.letter== 'X'%}
       <font color ="red">Hello, {{ player.letter}}!</font>
   {% else %}
       <font color ="blue">Hello, {{ player.letter}}!</font>
   {% endif %}
+
+-->
+
   </body>
 </html>
