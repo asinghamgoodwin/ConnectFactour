@@ -32,7 +32,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/shad/codespace/factic-toe/flask"
+set -gx VIRTUAL_ENV "/Users/atsg/Documents/Coding/RCprojects/ConnectFactour/VENVflask"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
