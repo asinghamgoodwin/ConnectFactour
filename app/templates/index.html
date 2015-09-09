@@ -13,7 +13,16 @@
   {% endfor %}
   </table>
 
-
+  <form action="", method="post", name="coinMove">
+      <!--      {{ form.hidden_tag() }}     -->
+      <p>
+        {{ form.coin1 }}
+      </p>
+      <p>
+        {{ form.coin2 }}
+      </p>
+      <p><input type="submit" value="Make Move"></p>
+  </form>
 
   </body>
 </html>
