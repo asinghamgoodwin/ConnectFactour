@@ -9,17 +9,17 @@ newGame = game(gamer1, gamer2)
 
 @app.route('/')
 @app.route('/index')
-# @app.route('/kitties')
+@app.route('/kitties')
 def index():
 #    form = coinMoveForm()
-#    gamer1 = gamer('X')
- #   gamer2 = gamer('O')
-   # newGame = game(gamer1, gamer2)
-    if form.validate_on_submit():
-        flash('coin1 moved to: "%s", coin2 moved to: "%s"' % 
-                (form.coin1.data, form.coin2.data))
-        print (form.coin1.data, form.coin2.data)
-        return redirect('/kitties')
+    gamer1 = gamer('X')
+    gamer2 = gamer('O')
+    newGame = game(gamer1, gamer2)
+#    if form.validate_on_submit():
+#        flash('coin1 moved to: "%s", coin2 moved to: "%s"' % 
+#                (form.coin1.data, form.coin2.data))
+#        print (form.coin1.data, form.coin2.data)
+#        return redirect('/kitties')
     return render_template('index.html',
                             title='Connect Factour!',
                             game=newGame)
