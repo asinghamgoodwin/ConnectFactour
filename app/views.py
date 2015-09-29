@@ -3,14 +3,19 @@ from app import app
 from connectFactour import *
 # from .forms import coinMoveForm
 
-gamer1 = gamer('X')
-gamer2 = gamer('O')
-newGame = game(gamer1, gamer2)
+#gamer1 = gamer('X')
+#gamer2 = gamer('O')
+#newGame = game(gamer1, gamer2)
 
 @app.route('/')
 @app.route('/index')
-@app.route('/kitties')
-def index():
+def startNewGame():
+    randomUrl = "abcde"
+    return render_template('startNewGame.html',
+                            randomUrl = randomUrl)
+
+@app.route('/index/<url>/<player>')
+def index(url,player):
 #    form = coinMoveForm()
     gamer1 = gamer('X')
     gamer2 = gamer('O')
@@ -26,6 +31,9 @@ def index():
 #                            form=form)
 
 #@app.route('/index/<toBeParsed>', methods=['GET'])
+
+
+
 @app.route('/index?coin1=<newCoin1>&coin2=<newCoin2>')
 def getFormData(newCoin1, newCoin2):
     print "getFormData got called"

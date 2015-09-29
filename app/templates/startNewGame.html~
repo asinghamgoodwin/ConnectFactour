@@ -1,0 +1,15 @@
+<html>
+<head>
+</head>
+<body>
+    <p> Welcome to ConnectFactour! Come play with your friends!</p>
+    <p> Your friend can play against you at this web address!</p>
+    <p>{{randomUrl}}</p>
+    {% set website = "./" + randomUrl %}
+    {{website}}
+    <a href = {{website}}>
+        
+        <button>Start Game! </button>
+    </a>
+</body>
+</html>
