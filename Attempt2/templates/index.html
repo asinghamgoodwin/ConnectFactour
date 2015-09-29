@@ -1,0 +1,94 @@
+<html>
+    <title>{{ title }} - Most Awesome Game Ever</title>
+  </head>
+  <body>
+  <table>
+  {% for y in range(6) %}
+  <tr>
+      {% for x in range(6) %}
+      <td>{{ game.grid[y][x].number }} </td>
+      {% endfor %}
+  </tr>
+
+  {% endfor %}
+  </table>
+
+ 
+  <form action="" method="post">
+      {{ form.hidden_tag() }}
+
+  <br>
+
+    {% for subfield in form.coin1 %}
+        <tr>
+            {{ subfield }} {{ subfield.label }}
+        </tr>
+    {% endfor %}
+
+  <br>
+  <br>
+
+    {% for subfield in form.coin2 %}
+        <tr>
+            {{ subfield }} {{ subfield.label }}
+        </tr>
+    {% endfor %}
+    <br>
+    <br>
+      <input type = "submit" value = "Make move!">
+  </form>
+
+
+
+
+
+
+  <!--
+  <div class="coins">
+      <form action="javascript:getMove();">
+        <p>
+          <input type="radio" name="coin1" value="1">1<br>
+          <input type="radio" name="coin1" value="2">2<br>
+          <input type="radio" name="coin1" value="3">3<br>
+          <input type="radio" name="coin1" value="4">4<br>
+          <input type="radio" name="coin1" value="5">5<br>
+          <input type="radio" name="coin1" value="6">6<br>
+          <input type="radio" name="coin1" value="7">7<br>
+          <input type="radio" name="coin1" value="8">8<br>
+          <input type="radio" name="coin1" value="9">9<br>
+        </p>
+        <p>
+          <input type="radio" name="coin2" value="1">1<br>
+          <input type="radio" name="coin2" value="2">2<br>
+          <input type="radio" name="coin2" value="3">3<br>
+          <input type="radio" name="coin2" value="4">4<br>
+          <input type="radio" name="coin2" value="5">5<br>
+          <input type="radio" name="coin2" value="6">6<br>
+          <input type="radio" name="coin2" value="7">7<br>
+          <input type="radio" name="coin2" value="8">8<br>
+          <input type="radio" name="coin2" value="9">9<br>
+        </p>
+        <p><input type="submit" value="Make Move"></p>
+    </form>
+  </div>
+
+  <script>
+  function getMove()
+  {
+  var radios1 = document.getElementsByName('coin1');
+  console.log(radios1);
+  var str2 = document.getElementsByName('coin2').value;
+  for (var i=0, length = radios1.length; i<length; i++) {
+      if (radios1[i].checked) {
+      var coin1 = radios1[i].value;
+      break;
+      }
+  }
+
+  console.log(coin1);
+  }
+  </script>
+  -->
+
+  </body>
+</html>
