@@ -11,11 +11,16 @@
     </style>
   </head>
   <body>
+    <h3> Share this link with your partner:</h3>
+    
+    {{partnerURL}}
+    <br>
+    <br/>
   <table>
   {% for y in range(6) %}
   <tr>
       {% for x in range(6) %}
-      <td>{{ game.grid[y][x].number }} </td>
+      <td>{{ grid[y][x][0] }} </td>
       {% endfor %}
   </tr>
 

@@ -1,5 +1,5 @@
 """this will render html templates depending on what url we go to"""
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, redirect
 import sqlite3
 from flask.ext.wtf import Form
 from wtforms import StringField, SelectField, RadioField
@@ -7,47 +7,103 @@ from wtforms.validators import DataRequired, Optional
 from models import *
 from connectFactour import *
 from contextlib import closing
+import random
+import string
+import json
 
 app = Flask(__name__)
 # this is referencing our config.py file, and weirdly lets us get away with not using a secret key
 app.config.from_object("config")
 
+defaultGame ={"grid": [
+                        [ [54,""],[56,""],[63,""],[64,""],[72,""],[81,""] ],
+                        [ [36,""],[40,""],[42,""],[45,""],[48,""],[49,""] ],
+                        [ [25,""],[27,""],[28,""],[30,""],[32,""],[35,""] ],
+                        [ [15,""],[16,""],[18,""],[20,""],[21,""],[24,""] ],
+                        [ [7,""],[8,""],[9,""],[10,""],[12,""],[14,""] ],
+                        [ [1,""],[2,""],[3,""],[4,""],[5,""],[6,""] ],
+                        ],
+                "coin1": 1,
+                "coin2": 1,
+                "upNext": "X",
+                "gameOver": False
+    }  
 class CoinForm(Form):
     # doing validators=[DataRequired()] did not work for the SelectField
     coin1 = RadioField('category',
-                       choices=[("1","1"),("2","2"),("3","3"),("4","4"),
+                    choices=[("1","1"),("2","2"),("3","3"),("4","4"),
                                 ("5","5"),("6","6"),("7","7"),("8","8"),("9","9")], 
-                       validators=[Optional()])
+                    validators=[Optional()])
 
     coin2 = RadioField('category',
-                       choices=[("1","1"),("2","2"),("3","3"),("4","4"),
+                    choices=[("1","1"),("2","2"),("3","3"),("4","4"),
                                 ("5","5"),("6","6"),("7","7"),("8","8"),("9","9")], 
-                       validators=[Optional()])
+                    validators=[Optional()])
+
+class NewGameForm(Form):
+    pass
 
 # @app.route('/')
 # @app.route('/index')
 # @app.route('/kitties')
-@app.route('/index', methods = ["GET", "POST"])
-def index():
-    gamer1 = gamer('X')
-    gamer2 = gamer('O')
-    newGame = game(gamer1, gamer2)
+@app.route('/newGame',methods = ["GET","POST"])
+def newGame():
+#    letterNum = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVQXYZ'
+#    randomHash = 
+    gameURL =''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase + string.digits) for _ in range(8)) 
+    myURL = '/index/'+gameURL+'/X'
+    partnerURL = '/index/'+gameURL+'/O'
+    form = NewGameForm()
+    #print gameURL
+    if form.validate_on_submit():
+        print partnerURL
+        newGame_state =  defaultGame
+        newGame_state["coin1"] = random.randint(1,9)
+        newGame_state["coin2"] = random.randint(1,9)
+        
+        # MAKE A NEW ENTRY INTO THE SQL DATABASE
+        db = get_db()
+        with db:
+            cur = db.cursor()
+            cur.execute("insert into Game(game_state,game_url) values (?,?)", [json.dumps(newGame_state),gameURL])
+        print myURL
+        return redirect(myURL)
+    return render_template('newGame.html',
+                            partnerURL=partnerURL,
+                            form=form)
+
+@app.route('/index/<gameURL>/<player>', methods = ["GET", "POST"])
+def index(gameURL, player):
+    print gameURL
+    print player
+    db =get_db()
+    with db:
+        cur = db.cursor()
+        cur.execute("SELECT game_state FROM Game WHERE game_url = '%s'" % gameURL)
+        this_game = json.loads(cur.fetchall()[0][0])
+        this_game_type = type(this_game)
+
+    print this_game['upNext']
+    print this_game_type
+    pretendGame = defaultGame
+    partnerURL = '/index/'+gameURL+'/O'
     coinForm = CoinForm()
     if coinForm.validate_on_submit():
-        print coinForm.coin1.data
-        print coinForm.coin2.data
+        coin1 = int(coinForm.coin1.data)
+        coin2 = int(coinForm.coin2.data)
     return render_template('index.html',
                             title='Connect Factour!',
                             form=coinForm,
-                            game=newGame)
+                            grid = pretendGame["grid"],
+                            partnerURL=partnerURL)
 
 
 
 
-## 
-## # @app.route('/')
-## # the GET is important to display the form and stuff, and the POST lets us grab the form input
-## @app.route('/index', methods = ["GET", "POST"])
+    ## 
+    ## # @app.route('/')
+    ## # the GET is important to display the form and stuff, and the POST lets us grab the form input
+    ## @app.route('/index', methods = ["GET", "POST"])
 ## def SALADindex():
 ##     # opening a connection to our database (get_db comes from models)
 ##     db = get_db()
