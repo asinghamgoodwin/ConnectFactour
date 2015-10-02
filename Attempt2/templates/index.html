@@ -1,12 +1,26 @@
 <html>
     <title>{{ title }} - Most Awesome Game Ever</title>
+    <style>
+        tr {font-size: 150%;
+            text-align:center;}
+        table, tr, td { border: 5px solid black;
+                        border-collapse: collapse;}
+        td{
+            padding:15px;
+        }
+    </style>
   </head>
   <body>
+    <h3> Share this link with your partner:</h3>
+    
+    {{partnerURL}}
+    <br>
+    <br/>
   <table>
   {% for y in range(6) %}
   <tr>
       {% for x in range(6) %}
-      <td>{{ game.grid[y][x].number }} </td>
+      <td>{{ grid[y][x][0] }} </td>
       {% endfor %}
   </tr>
 
