@@ -3,7 +3,7 @@ from flask import Flask, render_template, g, redirect
 import sqlite3
 from flask.ext.wtf import Form
 from wtforms import StringField, SelectField, RadioField
-from wtforms.validators import DataRequired, Optional
+from wtforms.validators import DataRequired, Optional, EqualTo
 from models import *
 from connectFactour import *
 from contextlib import closing
@@ -33,6 +33,7 @@ class CoinForm(Form):
     coin1 = RadioField('category',
                     choices=[("1","1"),("2","2"),("3","3"),("4","4"),
                                 ("5","5"),("6","6"),("7","7"),("8","8"),("9","9")], 
+                    #validators=[EqualTo("5", message='must equal 5')])
                     validators=[Optional()])
 
     coin2 = RadioField('category',
@@ -40,23 +41,16 @@ class CoinForm(Form):
                                 ("5","5"),("6","6"),("7","7"),("8","8"),("9","9")], 
                     validators=[Optional()])
 
-class NewGameForm(Form):
-    pass
 
-# @app.route('/')
-# @app.route('/index')
-# @app.route('/kitties')
 @app.route('/newGame',methods = ["GET","POST"])
 def newGame():
-#    letterNum = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVQXYZ'
-#    randomHash = 
     gameURL =''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase + string.digits) for _ in range(8)) 
     myURL = '/index/'+gameURL+'/X'
     partnerURL = '/index/'+gameURL+'/O'
     form = NewGameForm()
     #print gameURL
     if form.validate_on_submit():
-        print partnerURL
+#        print "I validated"
         newGame_state =  defaultGame
         newGame_state["coin1"] = random.randint(1,9)
         newGame_state["coin2"] = random.randint(1,9)
@@ -66,7 +60,7 @@ def newGame():
         with db:
             cur = db.cursor()
             cur.execute("insert into Game(game_state,game_url) values (?,?)", [json.dumps(newGame_state),gameURL])
-        print myURL
+#        print myURL
         return redirect(myURL)
     return render_template('newGame.html',
                             partnerURL=partnerURL,
@@ -74,30 +68,59 @@ def newGame():
 
 @app.route('/index/<gameURL>/<player>', methods = ["GET", "POST"])
 def index(gameURL, player):
-    print gameURL
-    print player
-    db =get_db()
+#    print gameURL
+#    print player
+    db = get_db()
     with db:
         cur = db.cursor()
         cur.execute("SELECT game_state FROM Game WHERE game_url = '%s'" % gameURL)
         this_game = json.loads(cur.fetchall()[0][0])
-        this_game_type = type(this_game)
+     #   this_game_type = type(this_game)
 
-    print this_game['upNext']
-    print this_game_type
-    pretendGame = defaultGame
-    partnerURL = '/index/'+gameURL+'/O'
+    #pretendGame = defaultGame
+    if player == "X":
+        otherPlayer = 'O'
+    else:
+        otherPlayer = 'X'
+    partnerURL = '/index/'+gameURL+"/"+otherPlayer
+
     coinForm = CoinForm()
     if coinForm.validate_on_submit():
+        #print type(coinForm.coin1.data)
         coin1 = int(coinForm.coin1.data)
         coin2 = int(coinForm.coin2.data)
+        product = coin1*coin2
+        for r, row in enumerate(this_game["grid"]):
+            for c, cell in enumerate(row):
+                if int(cell[0]) == product:
+                    cell[1] = player
+
+        this_game["upNext"] = otherPlayer
+
+        # print this_game['upNext']
+        updated_game = json.dumps(this_game)
+
+        db = get_db()
+        with db:
+            cur = db.cursor()
+            cur.execute("UPDATE Game SET game_state = '%s' WHERE game_url = '%s'" % (updated_game, gameURL))
+
     return render_template('index.html',
                             title='Connect Factour!',
                             form=coinForm,
-                            grid = pretendGame["grid"],
-                            partnerURL=partnerURL)
+                            grid = this_game["grid"],
+                            partnerURL=partnerURL,
+                            gameURL=gameURL)
 
 
+@app.route('/getGameState/<gameURL>')
+def getGameState(gameURL):
+    db = get_db()
+    with db:
+        cur = db.cursor()
+        cur.execute("SELECT game_state FROM Game WHERE game_url = '%s'" % gameURL)
+        this_game = (cur.fetchall()[0][0])
+    return this_game
 
 
     ## 

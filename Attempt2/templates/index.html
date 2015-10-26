@@ -4,7 +4,8 @@
         tr {font-size: 150%;
             text-align:center;}
         table, tr, td { border: 5px solid black;
-                        border-collapse: collapse;}
+                        border-collapse: collapse;
+                        }
         td{
             padding:15px;
         }
@@ -16,11 +17,44 @@
     {{partnerURL}}
     <br>
     <br/>
+    
+    <script>  
+function getNewGameState(){
+var xmlhttp = new XMLHttpRequest();
+    var url = '/getGameState/9Ah5SDpv';
+xmlhttp.onreadystatechange = function(){ 
+if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+        var myArr = JSON.parse(xmlhttp.responseText);
+        myFunction(myArr);
+    }
+}
+
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+}
+        setInterval(getNewGameState, 1000)
+    function myFunction(arr){
+        console.log(arr);
+        catTest = document.getElementById('cat');
+        catTest.innerHTML = '<h1> TEST </h1>';
+    }
+     
+    </script>
+    <p id='cat'></p>
+
   <table>
   {% for y in range(6) %}
   <tr>
       {% for x in range(6) %}
-      <td>{{ grid[y][x][0] }} </td>
+      {% if grid[y][x][1] == "" %}
+          <td>{{ grid[y][x][0] }} </td>
+      {% else %}
+          {% if grid[y][x][1] == "X" %}
+          <font color ="red"> <td>{{ grid[y][x][1] }} </td></font>
+          {% else %}
+              <td>{{ grid[y][x][1] }} </td>
+          {% endif %}
+      {% endif %}
       {% endfor %}
   </tr>
 
