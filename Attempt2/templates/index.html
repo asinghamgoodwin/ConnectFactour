@@ -14,34 +14,36 @@
   <body>
     <h3> Share this link with your partner:</h3>
     
-    {{partnerURL}}
+    /index/{{gameURL}}/{{otherPlayer}}
     <br>
     <br/>
     
     <script>  
-function getNewGameState(){
-var xmlhttp = new XMLHttpRequest();
-    var url = '/getGameState/9Ah5SDpv';
-xmlhttp.onreadystatechange = function(){ 
-if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
-        var myArr = JSON.parse(xmlhttp.responseText);
-        myFunction(myArr);
-    }
-}
+    function getUpdatedHTML(){
+        var xmlhttp = new XMLHttpRequest();
+        var url = String({{ getHTMLpath|tojson|safe}});
+        console.log(url);
+        xmlhttp.onreadystatechange = function(){ 
+            if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+                var tableAndFormHTML = xmlhttp.responseText;
+                replaceCatHTML(tableAndFormHTML);
+            }
+        }
 
-xmlhttp.open("GET", url, true);
-xmlhttp.send();
-}
-        setInterval(getNewGameState, 1000)
-    function myFunction(arr){
-        console.log(arr);
-        catTest = document.getElementById('cat');
-        catTest.innerHTML = '<h1> TEST </h1>';
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+    }
+
+    setInterval(getUpdatedHTML, 1000)
+
+    function replaceCatHTML(tableAndFormHTML){
+        cat = document.getElementById('cat');
+        cat.innerHTML = tableAndFormHTML;
     }
      
     </script>
-    <p id='cat'></p>
-
+    <p id='cat'>
+    <strong>{{ whoseTurnString }}</strong><br><br>
   <table>
   {% for y in range(6) %}
   <tr>
@@ -61,7 +63,10 @@ xmlhttp.send();
   {% endfor %}
   </table>
 
- 
+  <br><br><strong> {{ coinPositionHTMLstring }}</strong>
+</p>
+
+
   <form action="" method="post">
       {{ form.hidden_tag() }}
 
@@ -85,58 +90,6 @@ xmlhttp.send();
     <br>
       <input type = "submit" value = "Make move!">
   </form>
-
-
-
-
-
-
-  <!--
-  <div class="coins">
-      <form action="javascript:getMove();">
-        <p>
-          <input type="radio" name="coin1" value="1">1<br>
-          <input type="radio" name="coin1" value="2">2<br>
-          <input type="radio" name="coin1" value="3">3<br>
-          <input type="radio" name="coin1" value="4">4<br>
-          <input type="radio" name="coin1" value="5">5<br>
-          <input type="radio" name="coin1" value="6">6<br>
-          <input type="radio" name="coin1" value="7">7<br>
-          <input type="radio" name="coin1" value="8">8<br>
-          <input type="radio" name="coin1" value="9">9<br>
-        </p>
-        <p>
-          <input type="radio" name="coin2" value="1">1<br>
-          <input type="radio" name="coin2" value="2">2<br>
-          <input type="radio" name="coin2" value="3">3<br>
-          <input type="radio" name="coin2" value="4">4<br>
-          <input type="radio" name="coin2" value="5">5<br>
-          <input type="radio" name="coin2" value="6">6<br>
-          <input type="radio" name="coin2" value="7">7<br>
-          <input type="radio" name="coin2" value="8">8<br>
-          <input type="radio" name="coin2" value="9">9<br>
-        </p>
-        <p><input type="submit" value="Make Move"></p>
-    </form>
-  </div>
-
-  <script>
-  function getMove()
-  {
-  var radios1 = document.getElementsByName('coin1');
-  console.log(radios1);
-  var str2 = document.getElementsByName('coin2').value;
-  for (var i=0, length = radios1.length; i<length; i++) {
-      if (radios1[i].checked) {
-      var coin1 = radios1[i].value;
-      break;
-      }
-  }
-
-  console.log(coin1);
-  }
-  </script>
-  -->
 
   </body>
 </html>

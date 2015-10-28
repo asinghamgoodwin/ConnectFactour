@@ -77,15 +77,22 @@ def index(gameURL, player):
         this_game = json.loads(cur.fetchall()[0][0])
      #   this_game_type = type(this_game)
 
+
+    coin1 = str(this_game['coin1'])
+    coin2 = str(this_game['coin2'])
+    coinPositionHTMLstring = 'The current positions are: '+coin1+' and '+coin2
+
     #pretendGame = defaultGame
     if player == "X":
         otherPlayer = 'O'
     else:
         otherPlayer = 'X'
-    partnerURL = '/index/'+gameURL+"/"+otherPlayer
+    #partnerURL = gameURL+"/"+otherPlayer
 
     coinForm = CoinForm()
+    print "I'm about to do the if statement! I'm player "+player
     if coinForm.validate_on_submit():
+        print "I validated on submit! Player: "+player
         #print type(coinForm.coin1.data)
         coin1 = int(coinForm.coin1.data)
         coin2 = int(coinForm.coin2.data)
@@ -94,7 +101,8 @@ def index(gameURL, player):
             for c, cell in enumerate(row):
                 if int(cell[0]) == product:
                     cell[1] = player
-
+        this_game['coin1'] = coin1
+        this_game['coin2'] = coin2
         this_game["upNext"] = otherPlayer
 
         # print this_game['upNext']
@@ -105,22 +113,90 @@ def index(gameURL, player):
             cur = db.cursor()
             cur.execute("UPDATE Game SET game_state = '%s' WHERE game_url = '%s'" % (updated_game, gameURL))
 
+    if this_game['upNext'] == player:
+        whoseTurnString = "It's your turn!"
+    else:
+        whoseTurnString = "It's your partner's turn!"
+
     return render_template('index.html',
                             title='Connect Factour!',
                             form=coinForm,
                             grid = this_game["grid"],
-                            partnerURL=partnerURL,
-                            gameURL=gameURL)
+                            #partnerURL=partnerURL,
+                            gameURL=gameURL,
+                            otherPlayer=otherPlayer,
+                            myLetter=player,
+                            coinPositionHTMLstring=coinPositionHTMLstring,
+                            whoseTurnString = whoseTurnString,
+                            getHTMLpath = '/getHTML/'+gameURL+'/'+player)
 
 
 @app.route('/getGameState/<gameURL>')
-def getGameState(gameURL):
+## def getGameState(gameURL):
+##     db = get_db()
+##     with db:
+##         cur = db.cursor()
+##         cur.execute("SELECT game_state FROM Game WHERE game_url = '%s'" % gameURL)
+##         this_game = (cur.fetchall()[0][0])
+##     return this_game
+
+
+@app.route('/getHTML/<gameURL>/<player>')
+def getHTML(gameURL, player):
     db = get_db()
     with db:
         cur = db.cursor()
         cur.execute("SELECT game_state FROM Game WHERE game_url = '%s'" % gameURL)
-        this_game = (cur.fetchall()[0][0])
-    return this_game
+        this_game = json.loads(cur.fetchall()[0][0])
+
+    grid = this_game["grid"]
+    coin1 = str(this_game["coin1"])
+    coin2 = str(this_game["coin2"])
+    whoseTurn = this_game["upNext"]
+
+    form = CoinForm()
+    if whoseTurn == player:
+        whoseTurnString = "your"
+    else:
+        whoseTurnString = "your partner's"
+
+    whoseTurnHTML = "<strong>It's "+whoseTurnString+" turn!</strong><br><br>"
+
+    tableHTMLstring = "<table>"
+    for y in range(6):
+        tableHTMLstring = tableHTMLstring+"<tr>"
+        for x in range(6):
+            if grid[y][x][1] == "":
+                tableHTMLstring = tableHTMLstring+"<td>"+str(grid[y][x][0])+"</td>"
+            else:
+                tableHTMLstring = tableHTMLstring+"<td>"+str(grid[y][x][1])+"</td>"
+
+        tableHTMLstring = tableHTMLstring+"</tr>"
+
+          #<font color ="red"> <td>{{ grid[y][x][1] }} </td></font>
+          #{% else %}
+          #    <td>{{ grid[y][x][1] }} </td>
+
+    tableHTMLstring = tableHTMLstring+"</table>"
+
+    coinPositionHTMLstring = '<br><br><strong>The current positions are: '+coin1+' and '+coin2+'</strong>'
+## 
+##     formHTMLstring = '<form action="" method="post">'
+## 
+##     formHTMLstring = formHTMLstring+str(form.hidden_tag())+'<br>'
+## 
+##     for subfield in form.coin1:
+##         formHTMLstring = formHTMLstring+'<tr>'+str(subfield)+str(subfield.label)+'</tr>'
+##     formHTMLstring =formHTMLstring+' <br> <br>'
+## 
+##     for subfield in form.coin2:
+##         formHTMLstring = formHTMLstring+'<tr>'+str(subfield)+str(subfield.label)+'</tr>'
+##     formHTMLstring =formHTMLstring+' <br> <br> <input type = "submit" value = "Make move!"> </form>'
+##     
+    allHTML = whoseTurnHTML+tableHTMLstring+coinPositionHTMLstring
+    return allHTML
+
+
 
 
     ## 
