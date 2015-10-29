@@ -1,5 +1,5 @@
 <html>
-    <title>{{ title }} - Most Awesome Game Ever</title>
+    <title>{{ title }}</title>
     <style>
         tr {font-size: 150%;
             text-align:center;}
@@ -43,7 +43,14 @@
      
     </script>
     <p id='cat'>
-    <strong>{{ whoseTurnString }}</strong><br><br>
+    <strong>
+        {% if gameOverBoolean %}
+        <font color="lime">{{ gameOverString }}</font>
+        {% else %}
+            {{ whoseTurnString }}
+        {% endif %}
+    </strong><br><br>
+
   <table>
   {% for y in range(6) %}
   <tr>
@@ -89,6 +96,7 @@
     <br>
     <br>
       <input type = "submit" value = "Make move!">
+      <font color="red">{{errorMessage}}</font>
   </form>
 
   </body>

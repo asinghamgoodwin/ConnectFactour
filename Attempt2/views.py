@@ -10,6 +10,7 @@ from contextlib import closing
 import random
 import string
 import json
+from moveByMove import itWasMyTurn, isMoveLegal, isGameOver
 
 app = Flask(__name__)
 # this is referencing our config.py file, and weirdly lets us get away with not using a secret key
@@ -26,7 +27,8 @@ defaultGame ={"grid": [
                 "coin1": 1,
                 "coin2": 1,
                 "upNext": "X",
-                "gameOver": False
+                "gameOver": False,
+                "winner": ""
     }  
 class CoinForm(Form):
     # doing validators=[DataRequired()] did not work for the SelectField
@@ -40,6 +42,9 @@ class CoinForm(Form):
                     choices=[("1","1"),("2","2"),("3","3"),("4","4"),
                                 ("5","5"),("6","6"),("7","7"),("8","8"),("9","9")], 
                     validators=[Optional()])
+
+class NewGameForm(Form):
+    pass
 
 
 @app.route('/newGame',methods = ["GET","POST"])
@@ -88,35 +93,50 @@ def index(gameURL, player):
     else:
         otherPlayer = 'X'
     #partnerURL = gameURL+"/"+otherPlayer
+    errorMessage=""#there's no error message yet, but if someone tries to make an illegal move there will be...
+    gameOverString = ""
 
     coinForm = CoinForm()
-    print "I'm about to do the if statement! I'm player "+player
     if coinForm.validate_on_submit():
-        print "I validated on submit! Player: "+player
-        #print type(coinForm.coin1.data)
         coin1 = int(coinForm.coin1.data)
         coin2 = int(coinForm.coin2.data)
-        product = coin1*coin2
-        for r, row in enumerate(this_game["grid"]):
-            for c, cell in enumerate(row):
-                if int(cell[0]) == product:
-                    cell[1] = player
-        this_game['coin1'] = coin1
-        this_game['coin2'] = coin2
-        this_game["upNext"] = otherPlayer
 
-        # print this_game['upNext']
-        updated_game = json.dumps(this_game)
+        #this is to weed out a submitted form by the wrong player
+        errorMessage="Wait your turn!"
+        if itWasMyTurn(this_game["upNext"], player):
+            moveWasLegal, errorMessage = isMoveLegal(this_game, (coin1, coin2))
+            if moveWasLegal:
 
-        db = get_db()
-        with db:
-            cur = db.cursor()
-            cur.execute("UPDATE Game SET game_state = '%s' WHERE game_url = '%s'" % (updated_game, gameURL))
+                product = coin1*coin2
+                for r, row in enumerate(this_game["grid"]):
+                    for c, cell in enumerate(row):
+                        if int(cell[0]) == product:
+                            cell[1] = player
+                this_game['coin1'] = coin1
+                this_game['coin2'] = coin2
+                this_game["upNext"] = otherPlayer
+
+                gameIsOver, winner = isGameOver(this_game)
+                if gameIsOver:
+                    gameOverString = "GAME OVER! PLAYER "+winner+" WINS!"
+                    this_game["upNext"] = ""
+                    this_game["winner"] = winner
+                    this_game["gameOver"] = gameIsOver
+
+                updated_game = json.dumps(this_game)
+
+                db = get_db()
+                with db:
+                    cur = db.cursor()
+                    cur.execute("UPDATE Game SET game_state = '%s' WHERE game_url = '%s'" % (updated_game, gameURL))
+
+
 
     if this_game['upNext'] == player:
         whoseTurnString = "It's your turn!"
     else:
         whoseTurnString = "It's your partner's turn!"
+
 
     return render_template('index.html',
                             title='Connect Factour!',
@@ -128,6 +148,9 @@ def index(gameURL, player):
                             myLetter=player,
                             coinPositionHTMLstring=coinPositionHTMLstring,
                             whoseTurnString = whoseTurnString,
+                            errorMessage=errorMessage,
+                            gameOverString=gameOverString,
+                            gameOverBoolean=this_game["gameOver"],
                             getHTMLpath = '/getHTML/'+gameURL+'/'+player)
 
 
@@ -161,6 +184,10 @@ def getHTML(gameURL, player):
         whoseTurnString = "your partner's"
 
     whoseTurnHTML = "<strong>It's "+whoseTurnString+" turn!</strong><br><br>"
+
+    if this_game["gameOver"]:
+        whoseTurnHTML = "<strong><font color='lime'>GAME OVER! PLAYER "+this_game["winner"]+" WINS!</font></strong><br><br>"
+
 
     tableHTMLstring = "<table>"
     for y in range(6):
